@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.13
+# v0.20.15
 
 using Markdown
 using InteractiveUtils
@@ -234,10 +234,10 @@ prob = SecondOrderODEProblem(pendulo01, dθ₀, θ₀, tspan, p)
 md"## Solución del problema"
 
 # ╔═╡ 8f8e2119-3943-4a3b-940d-5ee0703115e5
-sol = solve(prob, reltol=1e-16, abstol=1e-16)
+sol = solve(prob, reltol=1e-17, abstol=1e-17)
 
 # ╔═╡ ad00af84-c0a4-467c-90e2-a9a109376f72
-function values_from_DE(sol; dt=0.001)
+function values_from_DE(sol; dt=0.0001)
 	idx = sol.t[1]:dt:sol.t[end]
 	return (collect(idx),
 	        map(value -> value[1], sol.(idx)),
@@ -286,14 +286,11 @@ begin
 	plot!(twinx(), t_sol, ω_sol, yaxis = "velocidad angular (rad/s)", legend = false, linecolor = :red)
 end
 
-# ╔═╡ f5339634-6e41-4067-b5b2-fcd355bfa829
-savefig(plot_combinado_M, "../img/plot_combinado_M.svg")
-
 # ╔═╡ fcc66ba9-37f5-4ca3-a4cc-ad4f73298d45
 md"### Movimiento de la masa M en el espacio de fases"
 
 # ╔═╡ bcfefe43-ba93-4553-b138-28a7275a62f1
-phase = plot(sol, idxs = (2,1),
+plot_fase_M = plot(sol, idxs = (2,1),
 			 legend = false,
 			 linewidth = 2,
 			 title = "Masa M (espacio de fases)",
@@ -328,7 +325,7 @@ end
 md"### Gráfica del movimiento de $m$ en el espacio de fases"
 
 # ╔═╡ b8e724b6-9179-4a75-aa72-878dac492570
-phase_m = plot(x_sol, v_sol,
+plot_fase_m = plot(x_sol, v_sol,
 			 legend = false,
 			 linewidth = 2,
 			 title = "Masa m (espacio de fases)",
@@ -341,11 +338,99 @@ phase_m = plot(x_sol, v_sol,
 			 aspect_ration = 1.1
 			)
 
+# ╔═╡ f5339634-6e41-4067-b5b2-fcd355bfa829
+savefig(plot_combinado_M, "../img/plot_combinado_M.svg")
+
+# ╔═╡ a831c384-cf45-422a-9038-82bc0c38b19a
+savefig(plot_fase_M, "../img/plot_fase_M.svg")
+
 # ╔═╡ 3a896e27-061a-4f43-b158-0a052a970660
 savefig(plot_combinado_m, "../img/plot_combinado_m.svg")
 
+# ╔═╡ 29f4ebc5-a21d-42a8-9543-bb8090555ec7
+savefig(plot_fase_m, "../img/plot_fase_m.svg")
+
 # ╔═╡ bf9d0ebd-7816-4a64-be0b-c8a151f50c04
 md"## Pruebas"
+
+# ╔═╡ e5d91a88-7a6b-4842-b47e-99945e60d1be
+@bind video CounterButton("Vídeo")
+
+# ╔═╡ 4e54bf83-de4a-43f8-b0ad-13d370a76522
+# ╠═╡ disabled = true
+#=╠═╡
+begin
+	video
+	for i in 1:i_M
+		println("Hola")
+	end
+end
+  ╠═╡ =#
+
+# ╔═╡ 7fe5282e-181e-4d69-8963-b0d13b16dc63
+
+
+# ╔═╡ de225194-9333-4b7c-a3a4-af8f338e1c80
+# ╠═╡ disabled = true
+#=╠═╡
+begin
+digitos_M = 6
+θd_copia = copy(θd_sol)
+θini = round(θd_sol[1], digits=digitos_M)
+for i in 2:length(θd_sol)
+	θactual = θd_copia[i]
+	if round(θactual, digits=digitos_M) === θini && i > 1000
+		i_M = i
+		T_M = t_sol[i]
+		θd_M = θd_sol[i]
+		println(i_M)
+		println(T_M)
+		println(θd_M)
+		break
+	end
+end
+end
+  ╠═╡ =#
+
+# ╔═╡ 1158a2f0-3abd-433e-a649-de5afb210d18
+
+
+# ╔═╡ 1b5919f1-92c4-4c56-91f3-ab441ce3856b
+# ╠═╡ disabled = true
+#=╠═╡
+begin
+digitos_m = 6
+x_copia = copy(x_sol)
+xini = round(x_sol[1], digits=digitos_m)
+for i in 2:length(x_sol)
+	xactual = x_copia[i]
+	if round(xactual, digits=digitos_m) === xini && i > 1000
+		i_m = i
+		T_m = t_sol[i]
+		x_m = x_sol[i]
+		println(i_m)
+		println(T_m)
+		println(x_m)
+		break
+	end
+end
+end
+  ╠═╡ =#
+
+# ╔═╡ 8c8f5942-94ec-48be-a373-6ff1e801855c
+
+
+# ╔═╡ 3f1ef2c9-a361-406a-b250-4056320ec8ad
+
+
+# ╔═╡ f259af0e-cb0a-4974-8d59-2efeb37980d4
+
+
+# ╔═╡ 8e99b47a-1086-4934-b8ac-c7b76e7bfe02
+
+
+# ╔═╡ 5abcc3fe-ff4b-492a-891e-113355d8a8ef
+
 
 # ╔═╡ 474ceb4b-184c-488d-a2c4-4893f6cf36b2
 # ╠═╡ disabled = true
@@ -3060,7 +3145,6 @@ version = "1.9.2+0"
 # ╟─5aefa9ef-dc6c-4d86-b4e0-0edbd51c6595
 # ╠═34e98f03-8469-42ae-b380-fab0697f3665
 # ╠═cddfce0c-8f7e-42fb-9c52-8f47446f3a83
-# ╠═f5339634-6e41-4067-b5b2-fcd355bfa829
 # ╠═fcc66ba9-37f5-4ca3-a4cc-ad4f73298d45
 # ╠═bcfefe43-ba93-4553-b138-28a7275a62f1
 # ╠═b0e1a641-f69b-4926-874b-4f3373c8c7ed
@@ -3068,8 +3152,22 @@ version = "1.9.2+0"
 # ╠═7e0788e0-064e-4d57-99aa-286deab7b6d4
 # ╠═f34e5767-3155-43d6-a3c9-9d97837785d6
 # ╠═b8e724b6-9179-4a75-aa72-878dac492570
+# ╠═f5339634-6e41-4067-b5b2-fcd355bfa829
+# ╠═a831c384-cf45-422a-9038-82bc0c38b19a
 # ╠═3a896e27-061a-4f43-b158-0a052a970660
-# ╟─bf9d0ebd-7816-4a64-be0b-c8a151f50c04
+# ╠═29f4ebc5-a21d-42a8-9543-bb8090555ec7
+# ╠═bf9d0ebd-7816-4a64-be0b-c8a151f50c04
+# ╠═e5d91a88-7a6b-4842-b47e-99945e60d1be
+# ╠═4e54bf83-de4a-43f8-b0ad-13d370a76522
+# ╠═7fe5282e-181e-4d69-8963-b0d13b16dc63
+# ╠═de225194-9333-4b7c-a3a4-af8f338e1c80
+# ╠═1158a2f0-3abd-433e-a649-de5afb210d18
+# ╠═1b5919f1-92c4-4c56-91f3-ab441ce3856b
+# ╠═8c8f5942-94ec-48be-a373-6ff1e801855c
+# ╠═3f1ef2c9-a361-406a-b250-4056320ec8ad
+# ╠═f259af0e-cb0a-4974-8d59-2efeb37980d4
+# ╠═8e99b47a-1086-4934-b8ac-c7b76e7bfe02
+# ╠═5abcc3fe-ff4b-492a-891e-113355d8a8ef
 # ╟─474ceb4b-184c-488d-a2c4-4893f6cf36b2
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
