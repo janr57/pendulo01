@@ -99,6 +99,38 @@ md"""
 2. Utilizando las dos ecuaciones restantes se obtienen, la posición $x(t)$ y la velocidad $v(t) = \dot{x}(t)$ de la partícula que se puede mover horizontalmente, de la que cuelgan la varilla y la masa $M$ en el extremo de esta última.
 """
 
+# ╔═╡ 9d8266b8-6f08-457c-a8e0-7a3135ceebde
+md"## Funciones"
+
+# ╔═╡ b9b50bfe-dfaa-468d-acda-13146fe48a01
+begin
+	isintegralmultipleof(f, x) = f != 0 && x / f ≈ round(x / f)
+	
+	function pifrac(x)
+    	if isintegralmultipleof(pi/4, x)
+        	n = Int(round(4 * x / π))
+			if n == -4
+				return "-\\pi"
+			elseif n == -2
+				return "-\\pi / 2"
+			elseif n == -1
+				return "-\\pi / 4"
+			elseif n == 0
+				return "0"
+			elseif n == 1
+				return "\\pi / 4"
+			elseif n == 2
+				return "\\pi / 2"
+			elseif n == 4
+				return "\\pi"
+			else
+        		return iseven(n) ? "$(n ÷ 4) \\pi" : "$(n) \\pi / 4"
+			end
+    	end
+    	return string(x)
+	end
+end
+
 # ╔═╡ 56066faa-fdd6-4fee-a846-37c321c8b99d
 md"### Presentación gráfica de los resultados"
 
@@ -241,23 +273,20 @@ function values_from_DE(sol; dt=0.0001)
 	idx = sol.t[1]:dt:sol.t[end]
 	return (collect(idx),
 	        map(value -> value[1], sol.(idx)),
-	        map(value -> value[2], sol.(idx)))
+	        map(value -> π - value[2], sol.(idx)))
 end
 
-# ╔═╡ 3fa3792c-9781-4d35-928b-bdebd131b9c0
+# ╔═╡ 61d4974a-2cfa-479e-be13-76d084000169
 t_sol, ω_sol, θ_sol = values_from_DE(sol)
-
-# ╔═╡ d4da2fc3-cf6e-4863-b458-5127ac644d1a
-θd_sol = θ_sol .* 180/pi
-
-# ╔═╡ 446123c8-8ae5-4229-884c-cf319572ceca
-ω_sol
 
 # ╔═╡ cedc1106-f8e8-48e4-99dc-1f092c3f5c7b
 x_sol = map(θ -> x₀ + ((m*b)/(M+m)) * (sin(θ₀)-sin(θ)), θ_sol)
 
 # ╔═╡ 04be2db4-e3d2-4cf3-9ee3-903814b5b1de
 v_sol = map((θ, ω) -> -((m*b)/(M+b)) * ω * cos(θ), θ_sol, ω_sol)
+
+# ╔═╡ 784deaa1-6313-445e-a3f8-66b0baa5b6c5
+ωpi_sol = ω_sol ./ pi
 
 # ╔═╡ acb3dff7-8975-4feb-a3d7-ef825713288e
 # ╠═╡ disabled = true
@@ -274,40 +303,63 @@ velocidad = sol(t_fin)[1]
 # ╔═╡ 5aefa9ef-dc6c-4d86-b4e0-0edbd51c6595
 md"### Gráfica combinada del movimiento de la masa M"
 
-# ╔═╡ 34e98f03-8469-42ae-b380-fab0697f3665
-
-
-# ╔═╡ cddfce0c-8f7e-42fb-9c52-8f47446f3a83
+# ╔═╡ f8f6836b-e3d3-4688-b2ad-1b278f6a086b
 begin
 	plot_combinado_M = plot(title = "Gráfica combinada θ y ω de M")
-	plot!(plot_combinado_M, t_sol, θd_sol, color = :blue, 
-		  legend_columns = 2, label = "θ (°)", yaxis = "ángulo θ en grados", xaxis = "tiempo (s)")
-	plot!(plot_combinado_M, t_sol, NaN .* ω_sol, label = "ω (rad/s)", linecolor = :red, legend = :bottomright)
-	plot!(twinx(), t_sol, ω_sol, yaxis = "velocidad angular (rad/s)", legend = false, linecolor = :red)
+	plot!(plot_combinado_M, t_sol, θ_sol, 
+		  linecolor = :blue, yguidefontcolor = :blue,
+		  linewidth = 2.0,
+		  xaxis = "tiempo (s)", yaxis = "ángulo θ (rad)",
+		  yticks = (
+			  [-π, -3π/4, -π/2, -π/4, 0, π/4, π/2, 3π/4, π], 
+			  ["-\\pi","-3 \\pi /4", "-\\pi /2","-\\pi /4", "0","\\pi /4", 
+			   "\\pi /2","3 \\pi /4", "\\pi"]), 
+		  ylims=(-π, π))
+	plot!(plot_combinado_M, t_sol, NaN .* ω_sol, linecolor = :red, legend = false)
+	plot!(twinx(), t_sol, ωpi_sol,
+		  linecolor = :red, yguidefontcolor = :red,
+		  linewidth = 2.0,
+		  yaxis = "velocidad angular (rad/s)", 
+		  yticks = (
+			  [-π, -3π/4, -π/2, -π/4, 0, π/4, π/2, 3π/4, π], 
+			  ["-\\pi","-3 \\pi /4", "-\\pi /2","-\\pi /4", "0","\\pi /4", 
+			   "\\pi /2","3 \\pi /4", "\\pi"]), 
+		  ylims = (-π, π),
+		  legend = false, widen = true)
 end
+
+# ╔═╡ da8e9f91-00b7-4e39-833e-f32ee3c585c5
+
 
 # ╔═╡ fcc66ba9-37f5-4ca3-a4cc-ad4f73298d45
 md"### Movimiento de la masa M en el espacio de fases"
 
-# ╔═╡ bcfefe43-ba93-4553-b138-28a7275a62f1
-plot_fase_M = plot(sol, idxs = (2,1),
-			 legend = false,
-			 linewidth = 2,
-			 title = "Masa M (espacio de fases)",
-			 xaxis = "ángulo (rad)",
-			 yaxis = "velocidad angular (rad/s)",
-			 formatter = :plain,
-			 widen = true,
-			 #xlims = (0, 5),
-			 #ylims = (-5, 5),
-			 aspect_ration = 1.1
-			)
+# ╔═╡ 6b3cda6b-c62e-42fe-becf-11cc29792347
+pirangepi = collect(-π:π/4:π)
 
-# ╔═╡ b0e1a641-f69b-4926-874b-4f3373c8c7ed
-# ╠═╡ disabled = true
-#=╠═╡
-scatter!(phase, (posición, velocidad), color = :red, markersize=5)
-  ╠═╡ =#
+# ╔═╡ 3e23b56e-f7b2-4a20-b343-151cac61bc97
+pirange2pi = collect(0:π/4:2π)
+
+# ╔═╡ 13c5aec9-9f09-4950-ad09-b8049241ad8f
+begin
+	plot_fase_M = plot(θ_sol, ωpi_sol,
+			    	    legend = false,
+			  		    linewidth = 3,
+			  			title = "Masa M (espacio de fases)",
+			  			xaxis = "ángulo (rad)",
+			  			yaxis = "velocidad angular (rad/s)",
+			  			formatter = :plain,
+			  			widen = true,
+			  			xticks = (pirangepi, pifrac.(pirangepi)),
+			  			yticks = (pirangepi, pifrac.(pirangepi)),
+			  			xlims = (-π, π),
+			  			ylims = (-π, π),
+			  			aspect_ration = 1.0
+					)
+end
+
+# ╔═╡ ae1ae552-d602-4995-bf43-0c0930191e02
+
 
 # ╔═╡ 2614fab8-5972-498b-9e82-68dda26b0e45
 md"### Gráfica combinada del movimiento de la masa m"
@@ -315,10 +367,15 @@ md"### Gráfica combinada del movimiento de la masa m"
 # ╔═╡ 7e0788e0-064e-4d57-99aa-286deab7b6d4
 begin
 	plot_combinado_m = plot(title = "Gráfica combinada x y v de m")
-	plot!(plot_combinado_m, t_sol, x_sol, color = :blue, 
+	plot!(plot_combinado_m, t_sol, x_sol,
+		  linecolor = :blue, yguidefontcolor = :blue,
+		  linewidth = 2,
 		  legend_columns = 2, label = "x (m)", yaxis = "Posición x (m)", xaxis = "tiempo (s)")
-	plot!(plot_combinado_m, t_sol, NaN .* v_sol, label = "v (m/s)", linecolor = :red, legend = :bottomright)
-	plot!(twinx(), t_sol, v_sol, yaxis = "velocidad (m/s)", legend = false, linecolor = :red)
+	plot!(plot_combinado_m, t_sol, NaN .* v_sol, label = "v (m/s)", linecolor = :red, legend = false)
+	plot!(twinx(), t_sol, v_sol,
+		  linecolor = :red, yguidefontcolor = :red,
+		  linewidth = 2,
+		  yaxis = "velocidad (m/s)", legend = false)
 end
 
 # ╔═╡ f34e5767-3155-43d6-a3c9-9d97837785d6
@@ -327,14 +384,12 @@ md"### Gráfica del movimiento de $m$ en el espacio de fases"
 # ╔═╡ b8e724b6-9179-4a75-aa72-878dac492570
 plot_fase_m = plot(x_sol, v_sol,
 			 legend = false,
-			 linewidth = 2,
+			 linewidth = 3,
 			 title = "Masa m (espacio de fases)",
 			 xaxis = "posición (m)",
 			 yaxis = "velocidad (m/s)",
 			 formatter = :plain,
 			 widen = true,
-			 #xlims = (-0.1, 0.8),
-			 #ylims = (-2, 2),
 			 aspect_ration = 1.1
 			)
 
@@ -3104,8 +3159,10 @@ version = "1.9.2+0"
 # ╟─494f0198-1264-4d19-92c3-3c5f1c88b58e
 # ╟─09676bdb-074e-49b0-bc4a-689f25ddd307
 # ╟─35405a1e-c2f0-4924-8133-b171f2adea5e
+# ╟─9d8266b8-6f08-457c-a8e0-7a3135ceebde
+# ╠═b9b50bfe-dfaa-468d-acda-13146fe48a01
 # ╟─56066faa-fdd6-4fee-a846-37c321c8b99d
-# ╠═bdf2af5d-4966-45a6-a4e8-8b5f2dd2c5e8
+# ╟─bdf2af5d-4966-45a6-a4e8-8b5f2dd2c5e8
 # ╟─3b896283-d5b4-44ba-81ae-01425df4ca72
 # ╟─4e8c1930-d89b-484f-985b-06887f1f1de3
 # ╟─6d0402dd-3658-447b-812b-35656acc5f07
@@ -3135,19 +3192,20 @@ version = "1.9.2+0"
 # ╟─4093e16b-be3b-4481-b388-ee2954068aa9
 # ╠═8f8e2119-3943-4a3b-940d-5ee0703115e5
 # ╠═ad00af84-c0a4-467c-90e2-a9a109376f72
-# ╠═3fa3792c-9781-4d35-928b-bdebd131b9c0
-# ╠═d4da2fc3-cf6e-4863-b458-5127ac644d1a
-# ╠═446123c8-8ae5-4229-884c-cf319572ceca
+# ╠═61d4974a-2cfa-479e-be13-76d084000169
 # ╠═cedc1106-f8e8-48e4-99dc-1f092c3f5c7b
 # ╠═04be2db4-e3d2-4cf3-9ee3-903814b5b1de
+# ╠═784deaa1-6313-445e-a3f8-66b0baa5b6c5
 # ╠═acb3dff7-8975-4feb-a3d7-ef825713288e
 # ╠═3a8dfa07-85b1-4642-9b0b-f95c818c5d83
 # ╟─5aefa9ef-dc6c-4d86-b4e0-0edbd51c6595
-# ╠═34e98f03-8469-42ae-b380-fab0697f3665
-# ╠═cddfce0c-8f7e-42fb-9c52-8f47446f3a83
+# ╠═f8f6836b-e3d3-4688-b2ad-1b278f6a086b
+# ╠═da8e9f91-00b7-4e39-833e-f32ee3c585c5
 # ╠═fcc66ba9-37f5-4ca3-a4cc-ad4f73298d45
-# ╠═bcfefe43-ba93-4553-b138-28a7275a62f1
-# ╠═b0e1a641-f69b-4926-874b-4f3373c8c7ed
+# ╠═6b3cda6b-c62e-42fe-becf-11cc29792347
+# ╠═3e23b56e-f7b2-4a20-b343-151cac61bc97
+# ╠═13c5aec9-9f09-4950-ad09-b8049241ad8f
+# ╠═ae1ae552-d602-4995-bf43-0c0930191e02
 # ╟─2614fab8-5972-498b-9e82-68dda26b0e45
 # ╠═7e0788e0-064e-4d57-99aa-286deab7b6d4
 # ╠═f34e5767-3155-43d6-a3c9-9d97837785d6
