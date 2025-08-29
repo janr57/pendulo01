@@ -102,6 +102,9 @@ md"""
 # ╔═╡ 9d8266b8-6f08-457c-a8e0-7a3135ceebde
 md"## Funciones"
 
+# ╔═╡ a04faffd-24a2-4687-b556-725215f766a7
+md"Para presentar el número pi correctamente en los ejes de las gráficas"
+
 # ╔═╡ b9b50bfe-dfaa-468d-acda-13146fe48a01
 begin
 	isintegralmultipleof(f, x) = f != 0 && x / f ≈ round(x / f)
@@ -129,6 +132,11 @@ begin
     	end
     	return string(x)
 	end
+end
+
+# ╔═╡ 42a0fad3-cbd2-4f5b-93db-f0313ce4dcf2
+function get_period()
+	
 end
 
 # ╔═╡ 56066faa-fdd6-4fee-a846-37c321c8b99d
@@ -178,8 +186,8 @@ md"#### $u$: $θ$, $\dot{θ}$"
 # ╔═╡ b8707d20-f7fe-4d78-b47c-96f97ba59445
 begin
 	reset
-	x₀ = 0.0;
-	dx₀ = 0.0;
+	x₁₀ = 0.0;
+	dx₁₀ = 0.0;
 	dθ₀ = 0.0;
 end
 
@@ -195,8 +203,8 @@ end
 # ╔═╡ ac925363-4863-4b4e-bb99-eceb8524480b
 md"""
 Valores iniciales||
-``x`` (``m``): $(x₀) |
-``\dot{x}`` (``m/s``): $(dx₀) |
+``x`` (``m``): $(x₁₀) |
+``\dot{x}`` (``m/s``): $(dx₁₀) |
 ``θ`` (``°``): $(θd₀) |
 ``\dot{θ}`` (``rad/s``): $(dθ₀)
 """
@@ -226,12 +234,12 @@ begin
 end
 
 # ╔═╡ 48610d1f-849b-4440-86ca-33517312c68a
-function calcula_x(θ)
-	return(x₀ + ((m*b)/(M+m)) * (sin(θ₀)-sin(θ)))
+function calcula_x1(θ)
+	return(x₁₀ + ((m*b)/(M+m)) * (sin(θ₀)-sin(θ)))
 end
 
 # ╔═╡ 66f74ee4-bcef-4857-b1dc-038337ecb560
-function calcula_v(θ, ω)
+function calcula_v1(θ, ω)
 	return(-((m*b)/(M+b)) * ω * cos(θ))
 end
 
@@ -268,6 +276,9 @@ md"## Solución del problema"
 # ╔═╡ 8f8e2119-3943-4a3b-940d-5ee0703115e5
 sol = solve(prob, reltol=1e-17, abstol=1e-17)
 
+# ╔═╡ 410e09c1-c282-4598-8751-e4ddd0b570dc
+md"### Conversión de los valores de la solución a unidades y formato adecuados"
+
 # ╔═╡ ad00af84-c0a4-467c-90e2-a9a109376f72
 function values_from_DE(sol; dt=0.0001)
 	idx = sol.t[1]:dt:sol.t[end]
@@ -276,14 +287,61 @@ function values_from_DE(sol; dt=0.0001)
 	        map(value -> π - value[2], sol.(idx)))
 end
 
+# ╔═╡ ae58aa2e-004d-48df-9b25-8edaf0c7daea
+md"Extracción de los valores de tiempo (t), velocidad angular (w) y ángulo de la varilla, obtenidos mediante la función anterior"
+
 # ╔═╡ 61d4974a-2cfa-479e-be13-76d084000169
 t_sol, ω_sol, θ_sol = values_from_DE(sol)
 
+# ╔═╡ 0d01400f-5de7-4809-bac1-5861d9fc6b32
+t_lims = (minimum(t_sol), maximum(t_sol))
+
+# ╔═╡ 118b1a69-88e7-47aa-b39e-7246ac6ee41a
+
+
+# ╔═╡ 6405419e-01ea-4955-af83-6122800e4d7a
+begin
+	ω_lims = (floor(minimum(ω_sol)), ceil(maximum(ω_sol)))
+end
+
+# ╔═╡ fd704701-f121-4800-ab34-d4c0fa32d1ba
+md"Coordenada x de la masa m1 que se mueve horizontalmente"
+
 # ╔═╡ cedc1106-f8e8-48e4-99dc-1f092c3f5c7b
-x_sol = map(θ -> x₀ + ((m*b)/(M+m)) * (sin(θ₀)-sin(θ)), θ_sol)
+x1_sol = map(θ -> x₁₀ + ((m*b)/(M+m)) * (sin(θ₀)-sin(θ)), θ_sol)
+
+# ╔═╡ e7892de2-42b9-479c-a642-756fce241440
+x1_lims = (floor(minimum(x1_sol)), ceil(maximum(x1_sol)))
+
+# ╔═╡ 860e505a-d01e-438c-a1c5-e065b39460c9
+md"Coordenada x de la masa m2 que cuelga de la varilla"
+
+# ╔═╡ e5256d73-2a6c-4b50-996f-4e721020aa15
+x2_sol = x1_sol .+ (b .* sin.(θ_sol))
+
+# ╔═╡ b892add7-76c5-490d-921c-05ad5bbb3b1a
+x2_lims = (floor(minimum(x2_sol)), ceil(maximum(x2_sol)))
+
+# ╔═╡ 28cc55ee-d70e-4ad7-8e3e-c1ee7db7abad
+
+
+# ╔═╡ 3675dc5f-9113-471b-923f-5559c6f60147
+y2_sol = .- b .* cos.(θ_sol)
+
+# ╔═╡ 4df56dd6-8598-4521-b6da-d4de1c4b6f0c
+y2_lims = (floor(minimum(y2_sol)), ceil(maximum(y2_sol)))
+
+# ╔═╡ e3462b34-c222-47db-a987-54b00c3aabda
+md"Velocidad de la masa m1 que se mueve horizontalmente"
 
 # ╔═╡ 04be2db4-e3d2-4cf3-9ee3-903814b5b1de
-v_sol = map((θ, ω) -> -((m*b)/(M+b)) * ω * cos(θ), θ_sol, ω_sol)
+v1_sol = map((θ, ω) -> -((m*b)/(M+b)) * ω * cos(θ), θ_sol, ω_sol)
+
+# ╔═╡ 58a8dd44-37f1-40c9-a8ad-eccc8c3abe53
+v1_lims = (floor(minimum(v1_sol)), ceil(maximum(v1_sol)))
+
+# ╔═╡ 6639783a-22b7-4df2-a012-0a7295f79512
+md"Velocidad angular dividida entre pi"
 
 # ╔═╡ 784deaa1-6313-445e-a3f8-66b0baa5b6c5
 ωpi_sol = ω_sol ./ pi
@@ -367,22 +425,22 @@ md"### Gráfica combinada del movimiento de la masa m"
 # ╔═╡ 7e0788e0-064e-4d57-99aa-286deab7b6d4
 begin
 	plot_combinado_m = plot(title = "Gráfica combinada x y v de m")
-	plot!(plot_combinado_m, t_sol, x_sol,
+	plot!(plot_combinado_m, t_sol, x1_sol,
 		  linecolor = :blue, yguidefontcolor = :blue,
 		  linewidth = 2,
-		  legend_columns = 2, label = "x (m)", yaxis = "Posición x (m)", xaxis = "tiempo (s)")
-	plot!(plot_combinado_m, t_sol, NaN .* v_sol, label = "v (m/s)", linecolor = :red, legend = false)
-	plot!(twinx(), t_sol, v_sol,
+		  legend_columns = 2, label = "x1 (m)", yaxis = "Posición x1 (m)", xaxis = "tiempo (s)")
+	plot!(plot_combinado_m, t_sol, NaN .* v1_sol, label = "v1 (m/s)", linecolor = :red, legend = false)
+	plot!(twinx(), t_sol, v1_sol,
 		  linecolor = :red, yguidefontcolor = :red,
 		  linewidth = 2,
-		  yaxis = "velocidad (m/s)", legend = false)
+		  yaxis = "velocidad v1 (m/s)", legend = false)
 end
 
 # ╔═╡ f34e5767-3155-43d6-a3c9-9d97837785d6
 md"### Gráfica del movimiento de $m$ en el espacio de fases"
 
 # ╔═╡ b8e724b6-9179-4a75-aa72-878dac492570
-plot_fase_m = plot(x_sol, v_sol,
+plot_fase_m = plot(x1_sol, v1_sol,
 			 legend = false,
 			 linewidth = 3,
 			 title = "Masa m (espacio de fases)",
@@ -408,19 +466,39 @@ savefig(plot_fase_m, "../img/plot_fase_m.svg")
 # ╔═╡ bf9d0ebd-7816-4a64-be0b-c8a151f50c04
 md"## Pruebas"
 
+# ╔═╡ 4f388dc8-416a-4bca-9735-6791748bf36e
+md"Función que retorna el periodo del movimiento, y los límites de x1, x2 e y2"
+
+# ╔═╡ c5e95c88-29f4-4add-9f62-4597df03da7f
+function info_datos(t_sol, x1_sol, x2_sol, y2_sol)
+	x1min = Inf
+	x2min = Inf
+	y2min = Inf
+	x1max = -Inf
+	x2max = -Inf
+	y2max = -Inf
+	T = NaN
+	# Bucle para calcular el rango de x1
+	minimum(x1_sol)
+end
+
+# ╔═╡ 1ba44670-b2fe-4c83-a468-0b450482f7f0
+info_datos(t_sol, x1_sol, x2_sol, y2_sol)
+
 # ╔═╡ e5d91a88-7a6b-4842-b47e-99945e60d1be
-@bind video CounterButton("Vídeo")
+md"Vídeo: $(@bind video CheckBox(default=false))"
+
+# ╔═╡ 5a29f813-a189-422d-a298-0a5b782ed665
+video
 
 # ╔═╡ 4e54bf83-de4a-43f8-b0ad-13d370a76522
-# ╠═╡ disabled = true
-#=╠═╡
 begin
-	video
-	for i in 1:i_M
-		println("Hola")
+	if video == true
+	for i in 1:3
+		println(rand(3))
+	end
 	end
 end
-  ╠═╡ =#
 
 # ╔═╡ 7fe5282e-181e-4d69-8963-b0d13b16dc63
 
@@ -3160,7 +3238,9 @@ version = "1.9.2+0"
 # ╟─09676bdb-074e-49b0-bc4a-689f25ddd307
 # ╟─35405a1e-c2f0-4924-8133-b171f2adea5e
 # ╟─9d8266b8-6f08-457c-a8e0-7a3135ceebde
+# ╟─a04faffd-24a2-4687-b556-725215f766a7
 # ╠═b9b50bfe-dfaa-468d-acda-13146fe48a01
+# ╠═42a0fad3-cbd2-4f5b-93db-f0313ce4dcf2
 # ╟─56066faa-fdd6-4fee-a846-37c321c8b99d
 # ╟─bdf2af5d-4966-45a6-a4e8-8b5f2dd2c5e8
 # ╟─3b896283-d5b4-44ba-81ae-01425df4ca72
@@ -3177,7 +3257,7 @@ version = "1.9.2+0"
 # ╠═b8707d20-f7fe-4d78-b47c-96f97ba59445
 # ╠═8ea07064-344c-4baa-84c6-568f943957c8
 # ╠═398f0017-ce0b-4239-8619-9d700610d34e
-# ╟─ac925363-4863-4b4e-bb99-eceb8524480b
+# ╠═ac925363-4863-4b4e-bb99-eceb8524480b
 # ╟─d62f600e-6653-46fe-84e7-12888bdf3816
 # ╟─ad8813a7-05fe-4e00-89e9-c23a10b27608
 # ╟─4171bce7-3f13-47c4-a069-d488dda28921
@@ -3191,10 +3271,26 @@ version = "1.9.2+0"
 # ╠═27bd4c86-cb9c-4e3f-ac11-7542249a6a7d
 # ╟─4093e16b-be3b-4481-b388-ee2954068aa9
 # ╠═8f8e2119-3943-4a3b-940d-5ee0703115e5
+# ╠═410e09c1-c282-4598-8751-e4ddd0b570dc
 # ╠═ad00af84-c0a4-467c-90e2-a9a109376f72
+# ╠═ae58aa2e-004d-48df-9b25-8edaf0c7daea
 # ╠═61d4974a-2cfa-479e-be13-76d084000169
+# ╠═0d01400f-5de7-4809-bac1-5861d9fc6b32
+# ╠═118b1a69-88e7-47aa-b39e-7246ac6ee41a
+# ╠═6405419e-01ea-4955-af83-6122800e4d7a
+# ╠═fd704701-f121-4800-ab34-d4c0fa32d1ba
 # ╠═cedc1106-f8e8-48e4-99dc-1f092c3f5c7b
+# ╠═e7892de2-42b9-479c-a642-756fce241440
+# ╠═860e505a-d01e-438c-a1c5-e065b39460c9
+# ╠═e5256d73-2a6c-4b50-996f-4e721020aa15
+# ╠═b892add7-76c5-490d-921c-05ad5bbb3b1a
+# ╠═28cc55ee-d70e-4ad7-8e3e-c1ee7db7abad
+# ╠═3675dc5f-9113-471b-923f-5559c6f60147
+# ╠═4df56dd6-8598-4521-b6da-d4de1c4b6f0c
+# ╠═e3462b34-c222-47db-a987-54b00c3aabda
 # ╠═04be2db4-e3d2-4cf3-9ee3-903814b5b1de
+# ╠═58a8dd44-37f1-40c9-a8ad-eccc8c3abe53
+# ╠═6639783a-22b7-4df2-a012-0a7295f79512
 # ╠═784deaa1-6313-445e-a3f8-66b0baa5b6c5
 # ╠═acb3dff7-8975-4feb-a3d7-ef825713288e
 # ╠═3a8dfa07-85b1-4642-9b0b-f95c818c5d83
@@ -3214,8 +3310,12 @@ version = "1.9.2+0"
 # ╠═a831c384-cf45-422a-9038-82bc0c38b19a
 # ╠═3a896e27-061a-4f43-b158-0a052a970660
 # ╠═29f4ebc5-a21d-42a8-9543-bb8090555ec7
-# ╠═bf9d0ebd-7816-4a64-be0b-c8a151f50c04
+# ╟─bf9d0ebd-7816-4a64-be0b-c8a151f50c04
+# ╠═4f388dc8-416a-4bca-9735-6791748bf36e
+# ╠═c5e95c88-29f4-4add-9f62-4597df03da7f
+# ╠═1ba44670-b2fe-4c83-a468-0b450482f7f0
 # ╠═e5d91a88-7a6b-4842-b47e-99945e60d1be
+# ╠═5a29f813-a189-422d-a298-0a5b782ed665
 # ╠═4e54bf83-de4a-43f8-b0ad-13d370a76522
 # ╠═7fe5282e-181e-4d69-8963-b0d13b16dc63
 # ╠═de225194-9333-4b7c-a3a4-af8f338e1c80
