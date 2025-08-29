@@ -42,7 +42,7 @@ md"## Descripción del péndulo:"
 
 # ╔═╡ 44e27285-b394-4c12-8ee0-4e802412f90f
 md"""
-El péndulo consiste en una masa puntual $m$ que se puede mover en el eje $x$ (horizontal), de la que pende una varilla rígida y sin masa de longitud $b$, en cuyo extremo se encuentra una masa puntual $M$. En este problema se desprecia cualquier rozamiento, tanto para el movimiento de la masa $m$, como de $M$.
+El péndulo consiste en una masa puntual $m₁$ que se puede mover en el eje $x$ (horizontal), de la que pende una varilla rígida y sin masa de longitud $L$, en cuyo extremo se encuentra otra masa puntual $m₂$. En este problema se desprecia cualquier rozamiento.
 """
 
 # ╔═╡ 09ebbdb2-4696-4b45-965f-7d4aecbf58a0
@@ -50,20 +50,20 @@ md"## Sistema de dos ecuaciones diferenciales de segundo orden:"
 
 # ╔═╡ 2e784d6d-b769-4db7-aea7-8583d40c5af5
 md"""
-En el capítulo 3 del curso de mecánica teórica de Javier García (ver referencia), se obtiene un sistema de dos ecuaciones diferenciales de segundo orden:\
-	1.  ${(M+m)\dot{x} + mb\dot{\theta}\cos\theta = 0}$\
-	2.  $\ddot{\theta} + \frac{1}{b}\ddot{x}\cos\theta + \frac{g}{b}sin\theta = 0$
+En el capítulo 3 del curso de mecánica teórica de Javier García (ver referencia), se obtiene un sistema de dos ecuaciones diferenciales de segundo orden (nótese que se ha cambiado el símbolo de algunas variables):\
+	1.  ${(m₁+m₂)\dot{x}₁ + m₁L\dot{\theta}\cos\theta = 0}$\
+	2.  $\ddot{\theta} + \frac{1}{L}\ddot{x}₁\cos\theta + \frac{g}{L}sin\theta = 0$
 """
 
 # ╔═╡ f5e27545-7536-4161-bc17-edc15f4ada80
 md"""
 donde:\
-* $M$ es la masa que cuelga de la varilla de longitud b (varilla sin masa).\
-* $m$ es la masa que se encuentra en el extremo superior de la varilla.\
-* $x$ es la coordenada $x$ de la masa $m$.\
+* $m₁$ es la masa que se encuentra en el extremo superior de la varilla.\
+* $m₂$ es la masa que cuelga de la varilla de longitud $L$ (varilla sin masa).\
+* $x₁$ es la coordenada $x$ de la masa $m₁$.\
 * $\theta$ es el ángulo que forma la varilla con respecto de la vertical.\
 
-donde ambas, $x(t)$ y $\theta(t)$, son las coordenadas generalizadas.
+donde ambas, $x₁(t)$ y $θ(t)$, son las coordenadas generalizadas.
 """
 
 # ╔═╡ dc5efe82-b8d6-4e75-a560-f3c160afea25
@@ -72,9 +72,9 @@ md"### Conversión en un sistema de cuatro ecuaciones diferenciales de primer or
 # ╔═╡ c8a374bb-aad1-4e10-8217-9cd0047d16f5
 md"""
 En este cuaderno se modifican las dos ecuaciones anteriores en:
-1. Una ecuación diferencial de segundo orden, que describe el movimiento de la masa $M$ que pende de la varilla (variables $θ$ y $\dot{θ} = ω$).
-1. Una ecuación (no diferencial) que relaciona la posición de la masa $m$ que se desplaza a lo largo del eje $x$.
-1. Una ecuación que relaciona $v(t) = \dot{x(t)}$ de la masa $m$ con $ω(t) = \dot{θ(t)}$ y $θ(t)$ de $M$. Esta ecuación es la primera de las dos ecuaciones originales descritas anteriormente, donde se ha despejado $\dot{x}$.
+1. Una ecuación diferencial de segundo orden, que describe el movimiento de la masa $m₂$ que pende de la varilla (variables $θ$ y $\dot{θ} = ω$).
+1. Una ecuación (no diferencial) que relaciona la posición de la masa $m₁$ que se desplaza a lo largo del eje $x$.
+1. Una ecuación que relaciona $v₁(t) = \dot{x}₁(t)$ de la masa $m₁$ con $ω(t) = \dot{θ}(t)$ y $θ(t)$ de $m₂$. Esta ecuación es la primera de las dos ecuaciones originales descritas anteriormente, donde se ha despejado $\dot{x}₁$.
 """
 
 # ╔═╡ 70778d19-8245-4308-b0dc-46ff03c1b6b8
@@ -83,11 +83,11 @@ md"#### Ecuaciones finales"
 # ╔═╡ 494f0198-1264-4d19-92c3-3c5f1c88b58e
 md"""
 \
-1. $\ddot{θ} = -\frac{m\sin θ\cos θ}{M+m\sin^{2}θ} \dot{θ} + \frac{(M+m)g\sinθ}{b(M+m\sin^{2}θ)}$\
-2. $x = x_0 + \frac{mb}{M+m} (sinθ_0 - \sin θ)$\
-3. $v = -\frac{mb}{M+m} ω \cos θ$
+1. $\ddot{θ} = -\frac{m₁\sin θ\cos θ}{m₂+m₁\sin^{2}θ} \dot{θ} + \frac{(m₁+m₂)g\sinθ}{L(m₂+m₁\sin^{2}θ)}$\
+2. $x₁ = x₁₀ + \frac{m₁L}{m₁+m₂} (sinθ_0 - \sin θ)$\
+3. $v₁ = -\frac{m₁L}{m₁+m₂} ω \cos θ$
 
-donde $v = \dot{x}$ y $\omega = \dot{θ}$.
+donde $v₁ = \dot{x}₁$ y $\omega = \dot{θ}$.
 """
 
 # ╔═╡ 09676bdb-074e-49b0-bc4a-689f25ddd307
@@ -95,15 +95,15 @@ md"### Procedimiento"
 
 # ╔═╡ 35405a1e-c2f0-4924-8133-b171f2adea5e
 md"""
-1. Se resuelve la ecuación diferencial de segundo orden mediante *DifferentialEquations.jl*. Así, se obtienen las variables $θ(t)$ y $ω(t) = \dot{θ}(t)$ que describen el ángulo que forma con la vertical la varilla de la que cuelga la masa $M$ y su velocidad angular.
-2. Utilizando las dos ecuaciones restantes se obtienen, la posición $x(t)$ y la velocidad $v(t) = \dot{x}(t)$ de la partícula que se puede mover horizontalmente, de la que cuelgan la varilla y la masa $M$ en el extremo de esta última.
+1. Se resuelve la ecuación diferencial de segundo orden mediante *DifferentialEquations.jl*. Así, se obtienen las variables $θ(t)$ y $ω(t) = \dot{θ}(t)$ que describen el ángulo que forma con la vertical la varilla de la que cuelga la masa $m₂$ y su velocidad angular.
+2. Utilizando las dos ecuaciones restantes se obtienen, la posición $x₁(t)$ y la velocidad $v₁(t) = \dot{x}₁(t)$ de la partícula que se puede mover horizontalmente, de la que cuelgan la varilla y la masa $m₂$ en el extremo de esta última.
 """
 
 # ╔═╡ 9d8266b8-6f08-457c-a8e0-7a3135ceebde
 md"## Funciones"
 
 # ╔═╡ a04faffd-24a2-4687-b556-725215f766a7
-md"Para presentar el número pi correctamente en los ejes de las gráficas"
+md"Para presentar el número pi correctamente en los ejes de las gráficas, se utiliza esta función auxiliar:"
 
 # ╔═╡ b9b50bfe-dfaa-468d-acda-13146fe48a01
 begin
@@ -134,9 +134,25 @@ begin
 	end
 end
 
+# ╔═╡ 5fe4476c-c7ba-4831-8141-ecdb33c68e92
+md"Esta función auxiliar se utiliza para calcular el periodo de un movimiento periódico:"
+
 # ╔═╡ 42a0fad3-cbd2-4f5b-93db-f0313ce4dcf2
-function get_period()
-	
+function get_period(t_arr, q_arr, qdot_arr)
+	T = NaN
+	len = length(t_arr)
+	tini = t_arr[1]
+	qini = q_arr[1]
+	qdotini = qdot_arr[1]
+	tant = tini
+	qant = qini
+	qdotant = qdotini
+	for i in 2:len
+		t = t_arr[i]
+		q = q_arr[i]
+		qdot = qdot_arr[i]
+		
+	end
 end
 
 # ╔═╡ 56066faa-fdd6-4fee-a846-37c321c8b99d
@@ -336,6 +352,9 @@ md"Velocidad de la masa m1 que se mueve horizontalmente"
 
 # ╔═╡ 04be2db4-e3d2-4cf3-9ee3-903814b5b1de
 v1_sol = map((θ, ω) -> -((m*b)/(M+b)) * ω * cos(θ), θ_sol, ω_sol)
+
+# ╔═╡ 5790ea18-a25e-43ca-87d9-e9d45c451284
+get_period(t_sol, x1_sol, v1_sol)
 
 # ╔═╡ 58a8dd44-37f1-40c9-a8ad-eccc8c3abe53
 v1_lims = (floor(minimum(v1_sol)), ceil(maximum(v1_sol)))
@@ -3240,7 +3259,9 @@ version = "1.9.2+0"
 # ╟─9d8266b8-6f08-457c-a8e0-7a3135ceebde
 # ╟─a04faffd-24a2-4687-b556-725215f766a7
 # ╠═b9b50bfe-dfaa-468d-acda-13146fe48a01
+# ╟─5fe4476c-c7ba-4831-8141-ecdb33c68e92
 # ╠═42a0fad3-cbd2-4f5b-93db-f0313ce4dcf2
+# ╠═5790ea18-a25e-43ca-87d9-e9d45c451284
 # ╟─56066faa-fdd6-4fee-a846-37c321c8b99d
 # ╟─bdf2af5d-4966-45a6-a4e8-8b5f2dd2c5e8
 # ╟─3b896283-d5b4-44ba-81ae-01425df4ca72
